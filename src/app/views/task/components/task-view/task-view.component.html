@@ -1,0 +1,47 @@
+<div class="taskView" id="taskView">
+  <div class="container">
+    <div class="navbar">
+      <img [src]="imgLogo" class="logoIRIS" alt="logo" />
+    </div>
+    <div class="m-4">
+      <div class="view">
+        <h3 class="title_view">To do List</h3>
+      </div>
+      <div class="view_group">
+        <p-dropdown
+          class=" "
+          [options]="task"
+          [(ngModel)]="selectedCategory"
+          optionLabel="name"
+          optionValue="code"
+        />
+        <div class="mt-2 addTask flex flex-wrap justify-content-center">
+          <p-iconField iconPosition="right" class="iconField">
+            <p-inputIcon styleClass="pi pi-plus" (click)="click()" />
+            <input type="text" [(ngModel)]="nameTodo" pInputText />
+          </p-iconField>
+        </div>
+      </div>
+      <div class="All">
+        <h3  class="title_All">
+          All
+        </h3>
+        <p-divider type="solid" />
+        <div *ngFor="let item of todos; let i = index" class="container_new_task mb-2">
+          <div class="item_new">
+            <p-checkbox
+            class="mr-2"
+              [binary]="true"
+              inputId="binary" />
+            {{ item }}
+          </div>
+          <div class="icon_fail">
+            <p-inputIcon class="ml-2" styleClass="pi pi pi-times "  (click)="borrar(i)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
