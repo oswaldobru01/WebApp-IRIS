@@ -6,8 +6,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DividerModule } from 'primeng/divider';
+import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
+import { AuthInterceptor } from './interceptor/auth.interceptor';
 @NgModule({
-  declarations: [],
+  declarations: [
+
+  ],
   imports: [
     CommonModule,
     DropdownModule,
@@ -24,6 +28,10 @@ import { DividerModule } from 'primeng/divider';
     InputTextModule,
     CheckboxModule,
     DividerModule
-  ]
+  ],
+  providers: [
+    provideHttpClient(),
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+  ],
 })
 export class SharedModule { }

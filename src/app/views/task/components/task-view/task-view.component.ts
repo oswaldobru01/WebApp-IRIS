@@ -1,44 +1,75 @@
 import { Component } from '@angular/core';
 import { ConstIRIS } from '../../../../models/const';
 import { Category } from '../../../../models/category';
-import { SharedModule } from '../../../../shared/shared/shared.module';
+import { SharedModule } from '../../../../shared/shared.module';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { ServicesService } from '../../../../shared/services/services.service';
+import { ToDoItemInterface } from '../../../../models/ITodoInterface';
 
 @Component({
   selector: 'app-task-view',
-  standalone: true,
-  imports: [SharedModule,FormsModule,CommonModule],
+  standalone: false,
   templateUrl: './task-view.component.html',
-  styleUrl: './task-view.component.scss'
+  styleUrl: './task-view.component.scss',
 })
 export class TaskViewComponent {
-   imgLogo :string = ConstIRIS.URL_LOGO;
-   task: Category[] | undefined;
+  imgLogo: string = ConstIRIS.URL_LOGO;
+  task: Category[] | undefined;
+  selectedCategory: string = "ALL";
+  nameTodo = '';
+  todos: ToDoItemInterface[] = [];
+  filteredTodos: ToDoItemInterface[] = [];
 
-   selectedCategory: string = "ALL";
-  nameTodo = ''
+  constructor(private serviceToDo$: ServicesService) { }
 
-   todos :string[]= []
+  ngOnInit() {
+    this.serviceToDo$.getAll().subscribe((res: ToDoItemInterface[]) => {
+      this.todos = res;
+      this.filteredTodos = this.todos;
+    });
 
-   ngOnInit() {
-       this.task = [
-           { name:'All', code:'ALL'},
-           { name: 'To do', code: 'TD' },
-           { name: 'Done', code: 'DONE' }
+    this.task = [
+      { name: 'All', description: 'ALL' },
+      { name: 'To do', description: 'TD' },
+      { name: 'Done', description: 'DONE' }
+    ];
+  }
 
-       ];
-   }
+  ngOnChanges() {
+    this.filterTodos();
+  }
 
-   click():void{
-    this.todos.push(this.nameTodo)
-    this.nameTodo=''
-    console.log(this.todos)
-    console.log("Hol")
-   }
+  filterTodos() {
+    if (this.selectedCategory === 'ALL') {
+      this.filteredTodos = this.todos;
+    } else if (this.selectedCategory === 'TD') {
+      this.filteredTodos = this.todos.filter(todo => !todo.isCompleted);
+    } else if (this.selectedCategory === 'DONE') {
+      this.filteredTodos = this.todos.filter(todo => todo.isCompleted);
+    }
+  }
 
-   borrar(index:number){
-        this.todos.splice(index,1);
-   }
+  click(): void {
+    this.serviceToDo$.create({ title: this.nameTodo, description: '', isCompleted: false })
+      .subscribe((newTodo) => {
+        this.todos.push(newTodo);
+        this.filterTodos();
+      });
+    this.nameTodo = '';
+  }
+
+  borrar(id: number) {
+    this.serviceToDo$.delete(id).subscribe(() => {
+      this.todos = this.todos.filter(todo => todo.id !== id);
+      this.filterTodos();
+    });
+  }
+
+  updateStatus(item: ToDoItemInterface): void {
+    item.isCompleted = !item.isCompleted;
+    this.serviceToDo$.update(item).subscribe(() => {
+      this.filterTodos();
+    });
+  }
 }
